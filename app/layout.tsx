@@ -6,6 +6,11 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "نظام الفواتير - Invoice System",
   description: "نظام متقدم لإدخال وإصدار الفواتير بصيغة PDF",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
   icons: {
     icon: [
       {
