@@ -54,7 +54,7 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6" dir="rtl">
       {/* Invoice Info */}
       <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 sm:p-6">

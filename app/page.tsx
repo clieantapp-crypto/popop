@@ -196,10 +196,10 @@ export default function Home() {
         <div className="container mx-auto py-6 sm:py-8 px-4">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-1 sm:mb-2">
-              نظام الفواتير الاحترافي
+              نظام الفواتير 
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-slate-600">
-              إنشاء وإدارة الفواتير بسهولة وسرعة مع تصدير PDF محترف
+              إنشاء وإدارة الفواتير  
             </p>
           </div>
         </div>
