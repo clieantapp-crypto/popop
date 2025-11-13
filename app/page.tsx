@@ -234,6 +234,7 @@ export default function Home() {
             <div className="flex gap-2 sm:gap-3 mb-4 sm:mb-6 flex-wrap">
               <Button
                 onClick={handleDownloadPDF}
+                disabled
                 className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all rounded-lg px-3 sm:px-6 py-2 sm:py-2.5 font-medium text-sm sm:text-base"
               >
                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
