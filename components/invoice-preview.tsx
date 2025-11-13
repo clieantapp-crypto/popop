@@ -26,7 +26,11 @@ interface InvoicePreviewProps {
 
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const totalAmount = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-
+  const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  const taxRate = 0.15 // 15% VAT for example
+  const tax = subtotal * taxRate
+  const total = subtotal + tax
+  
   return (
     <div id="invoice-preview" className="w-full max-w-4xl mx-auto">
       <Card className="border-0 shadow-2xl rounded-xl overflow-hidden">
@@ -36,13 +40,16 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
               {/* Company Info */}
               <div className="flex-1 w-full">
-                <h1 className="text-xl sm:text-2xl font-bold text-blue-800 mb-1">مختبر نورمار</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-blue-800 mb-1">
+      <img src="normar.png" alt="logo" width={100}/>
+    مختبر نورمار</h1>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium">NORMAR DIGITAL DENTAL INDUSTRY LAB</p>
                 <p className="text-xs text-slate-500 mt-1 sm:mt-2 line-clamp-2 sm:line-clamp-none">
                   الرمثا - قرب المدرسة الثانوية - هاتف: 0798719058
                 </p>
+              
               </div>
-
+ 
               {/* Invoice Title Section */}
               <div className="text-left border-l-2 border-slate-300 pl-3 sm:pl-4 md:pl-6 w-full sm:w-auto">
                 <p className="text-base sm:text-lg font-bold text-blue-800 mb-2 sm:mb-3">فاتورة</p>
@@ -64,51 +71,62 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
             </p>
           </div>
 
-          {/* Table - Mobile responsive */}
-          <div className="overflow-x-auto mb-4 sm:mb-6 md:mb-8">
-            <table className="w-full border-collapse text-xs sm:text-sm">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-100 to-blue-50 border-2 border-blue-300">
-                  <th className="p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
-                    السعر الإجمالي
-                  </th>
-                  <th className="p-2 sm:p-3 md:p-4 text-center font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
-                    السعر
-                  </th>
-                  <th className="p-2 sm:p-3 md:p-4 text-center font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
-                    العدد
-                  </th>
-                  <th className="p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900 whitespace-nowrap">
-                    البيــــــان
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.items.map((item) => (
-                  <tr key={item.id} className="border-2 border-slate-300 hover:bg-slate-50 transition-colors">
-                    <td className="p-2 sm:p-3 md:p-4 text-center text-slate-800 font-semibold border-r-2 border-slate-300 whitespace-nowrap">
-                      {(item.quantity * item.price).toFixed(2)}
-                    </td>
-                    <td className="p-2 sm:p-3 md:p-4 text-center text-slate-700 border-r-2 border-slate-300">
-                      {item.price.toFixed(2)}
-                    </td>
-                    <td className="p-2 sm:p-3 md:p-4 text-center text-slate-700 border-r-2 border-slate-300">
-                      {item.quantity}
-                    </td>
-                    <td className="p-2 sm:p-3 md:p-4 text-right text-slate-800 truncate">{item.description}</td>
-                  </tr>
-                ))}
-                {[...Array(Math.max(0, 6 - data.items.length))].map((_, i) => (
-                  <tr key={`empty-${i}`} className="border-2 border-slate-300 h-8 sm:h-10 md:h-12">
-                    <td className="border-r-2 border-slate-300"></td>
-                    <td className="border-r-2 border-slate-300"></td>
-                    <td className="border-r-2 border-slate-300"></td>
-                    <td></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      
+{/* Table - Fixed layout */}
+<div className="overflow-x-auto mb-4 sm:mb-6 md:mb-8">
+  <table className="w-full border-collapse text-xs sm:text-sm">
+    <thead>
+      <tr className="bg-gradient-to-r from-blue-100 to-blue-50 border-2 border-blue-300">
+        <th className="p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
+          السعر الإجمالي
+        </th>
+        <th className="p-2 sm:p-3 md:p-4 text-center font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
+          السعر
+        </th>
+        <th className="p-2 sm:p-3 md:p-4 text-center font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
+          العدد
+        </th>
+        <th className="p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900 border-r-2 border-blue-300 whitespace-nowrap">
+          البيان
+        </th>
+        <th className="p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900 whitespace-nowrap">
+          ملاحظات
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {data.items.map((item) => (
+        <tr key={item.id} className="border-2 border-slate-300 hover:bg-slate-50 transition-colors">
+          <td className="p-2 sm:p-3 md:p-4 text-center text-slate-800 font-semibold border-r-2 border-slate-300 whitespace-nowrap">
+            {(item.quantity * item.price).toFixed(2)}
+          </td>
+          <td className="p-2 sm:p-3 md:p-4 text-center text-slate-700 border-r-2 border-slate-300">
+            {item.price.toFixed(2)}
+          </td>
+          <td className="p-2 sm:p-3 md:p-4 text-center text-slate-700 border-r-2 border-slate-300">
+            {item.quantity}
+          </td>
+          <td className="p-2 sm:p-3 md:p-4 text-right text-slate-800 border-r-2 border-slate-300">
+            {item.description}
+          </td>
+          <td className="p-2 sm:p-3 md:p-4 text-right text-slate-500">—</td>
+        </tr>
+      ))}
+
+      {/* Fill remaining rows for consistent height */}
+      {[...Array(Math.max(0, 6 - data.items.length))].map((_, i) => (
+        <tr key={`empty-${i}`} className="border-2 border-slate-300 h-8 sm:h-10 md:h-12">
+          <td className="border-r-2 border-slate-300"></td>
+          <td className="border-r-2 border-slate-300"></td>
+          <td className="border-r-2 border-slate-300"></td>
+          <td className="border-r-2 border-slate-300"></td>
+          <td></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
           {/* Total Section */}
           <div className="border-2 border-blue-300 mb-6 sm:mb-8 bg-gradient-to-r from-blue-50 to-slate-50">
@@ -119,6 +137,17 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900">المجموع</div>
             </div>
           </div>
+          <div className="mt-4 text-right space-y-2">
+  <p className="text-sm text-slate-700">
+    المجموع الفرعي: <span className="font-semibold">{subtotal.toFixed(2)}</span>
+  </p>
+  <p className="text-sm text-slate-700">
+    الضريبة (15%): <span className="font-semibold">{tax.toFixed(2)}</span>
+  </p>
+  <p className="text-base font-bold text-blue-700">
+    الإجمالي: {total.toFixed(2)}
+  </p>
+</div>
 
           {/* Signature */}
           <div className="flex justify-start mt-12 sm:mt-16 md:mt-16 pt-6 sm:pt-8 border-t-2 border-slate-200">
