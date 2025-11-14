@@ -16,6 +16,7 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
+  discount?: number
   notes: string
   paymentTerms: string
 }
@@ -25,8 +26,9 @@ interface InvoicePreviewProps {
 }
 
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
-  const totalAmount = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-
+  const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  const discountAmount = data.discount || 0
+  const finalTotal = subtotal - discountAmount
 
   return (
     <div id="invoice-preview" className="w-full max-w-4xl mx-auto">
@@ -34,7 +36,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
         <div className="p-4 sm:p-8 md:p-12 bg-white text-right" dir="rtl">
           {/* Header Section */}
           <div className="border-b-4 border-gradient-to-r from-blue-600 to-blue-800 pb-4 sm:pb-6 md:pb-8 mb-4 sm:mb-6 md:mb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-4 sm:mb-6 md:mb-8">
               {/* Company Info */}
               <div className="flex-1 w-full">
                 <h1 className="text-xl sm:text-2xl font-bold text-blue-800 mb-1">
@@ -127,11 +129,30 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
 
           {/* Total Section */}
           <div className="border-2 border-blue-300 mb-6 sm:mb-8 bg-gradient-to-r from-blue-50 to-slate-50">
+            {/* Subtotal Row */}
+            <div className="flex text-xs sm:text-sm md:text-base border-b-2 border-blue-200">
+              <div className="w-1/4 p-2 sm:p-3 md:p-4 text-center font-semibold text-slate-800 border-r-2 border-blue-200 whitespace-nowrap">
+                {subtotal.toFixed(2)}
+              </div>
+              <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">المجموع الفرعي</div>
+            </div>
+
+            {/* Discount Row */}
+            {discountAmount > 0 && (
+              <div className="flex text-xs sm:text-sm md:text-base border-b-2 border-blue-200">
+                <div className="w-1/4 p-2 sm:p-3 md:p-4 text-center font-semibold text-red-600 border-r-2 border-blue-200 whitespace-nowrap">
+                  -{discountAmount.toFixed(2)}
+                </div>
+                <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">الخصم</div>
+              </div>
+            )}
+
+            {/* Final Total Row */}
             <div className="flex text-xs sm:text-sm md:text-base">
               <div className="w-1/4 p-2 sm:p-3 md:p-4 text-center font-bold text-blue-900 border-r-2 border-blue-300 bg-blue-100 whitespace-nowrap">
-                {totalAmount.toFixed(2)}
+                {finalTotal.toFixed(2)}
               </div>
-              <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900">المجموع</div>
+              <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-bold text-blue-900">الإجمالي النهائي</div>
             </div>
           </div>
 
