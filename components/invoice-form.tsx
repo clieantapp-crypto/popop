@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Plus, X } from "lucide-react"
+import { Plus, X } from 'lucide-react'
 
 interface InvoiceData {
   invoiceNumber: string
@@ -20,6 +20,7 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
+  discount: number
   notes: string
   paymentTerms: string
 }
@@ -52,6 +53,10 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
   const handleRemoveItem = (id: string) => {
     onChange({ ...data, items: data.items.filter((item) => item.id !== id) })
   }
+
+  const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+  const discountAmount = data.discount || 0
+  const total = subtotal - discountAmount
 
   return (
     <div className="space-y-4 sm:space-y-6" dir="rtl">
@@ -219,6 +224,39 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
                 </Button>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Total Summary Card */}
+      <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white p-3 sm:p-6">
+          <CardTitle className="text-base sm:text-lg">الإجمالي</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6 space-y-3 sm:space-y-4">
+          <div className="flex justify-between items-center text-sm sm:text-base">
+            <span className="font-semibold text-slate-700">المجموع الفرعي:</span>
+            <span className="font-bold text-slate-900">{subtotal.toFixed(2)}</span>
+          </div>
+          
+          <div className="flex justify-between items-center gap-3 sm:gap-4">
+            <label className="font-semibold text-slate-700 text-sm sm:text-base">الخصم:</label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={data.discount || 0}
+              onChange={(e) => handleUpdateField("discount", Number.parseFloat(e.target.value) || 0)}
+              placeholder="0.00"
+              className="text-center border-slate-300 focus:border-blue-500 rounded-lg text-sm w-32 sm:w-40"
+            />
+          </div>
+          
+          <div className="border-t-2 border-slate-300 pt-3 sm:pt-4 flex justify-between items-center">
+            <span className="font-bold text-slate-900 text-base sm:text-lg">الإجمالي النهائي:</span>
+            <span className="font-bold text-green-700 text-xl sm:text-2xl bg-green-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border-2 border-green-200">
+              {total.toFixed(2)}
+            </span>
           </div>
         </CardContent>
       </Card>
