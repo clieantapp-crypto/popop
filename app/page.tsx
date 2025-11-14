@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileText, Eye, Download, Printer } from "lucide-react"
+import { FileText, Eye, Download, Printer } from 'lucide-react'
 import InvoiceForm from "@/components/invoice-form"
 import InvoicePreview from "@/components/invoice-preview"
 
@@ -21,11 +21,10 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
-  discount?: number
+  discount: number
   notes: string
   paymentTerms: string
 }
-
 
 const initialInvoiceData: InvoiceData = {
   invoiceNumber: "001",
@@ -36,6 +35,7 @@ const initialInvoiceData: InvoiceData = {
   clientName: "اسم العميل",
   clientAddress: "عنوان العميل",
   items: [{ id: "1", description: "الخدمة/المنتج", quantity: 1, price: 100 }],
+  discount: 0,
   notes: "شكرا على تعاملكم معنا",
   paymentTerms: "الدفع عند الاستلام",
 }
@@ -50,13 +50,16 @@ export default function Home() {
     const printWindow = window.open("", "_blank")
     if (!printWindow) return
 
-    const totalAmount = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    const discountAmount = invoiceData.discount || 0
+    const totalAmount = subtotal - discountAmount
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html dir="rtl">
         <head>
           <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>فاتورة - ${invoiceData.invoiceNumber}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,13 +80,48 @@ export default function Home() {
             td:first-child { text-align: right; }
             td:not(:first-child) { text-align: center; }
             .empty-row { height: 48px; }
-            .total-section { display: flex; font-weight: bold; border: 2px solid #9ca3af; font-size: 12px; margin-bottom: 24px; }
+            .total-section { display: flex; font-weight: bold; border: 2px solid #9ca3af; font-size: 12px; margin-bottom: 12px; }
             .total-amount { width: 25%; padding: 12px; text-align: center; background: #f3f4f6; border-right: 2px solid #9ca3af; }
             .total-label { flex: 1; padding: 12px; text-align: right; }
             .signature { display: flex; justify-content: flex-start; margin-top: 48px; }
             .signature-line { text-align: center; }
             .signature-line div { border-bottom: 2px solid #9ca3af; width: 128px; margin-bottom: 8px; }
             .signature-line p { font-size: 11px; font-weight: bold; color: #1e3a8a; }
+            
+            /* Added mobile responsive styles for phone screens */
+            @media screen and (max-width: 640px) {
+              .invoice { padding: 16px; }
+              .header { padding-bottom: 16px; margin-bottom: 20px; border-bottom-width: 3px; }
+              .header-top { flex-direction: column; gap: 16px; }
+              .company-info h2 { font-size: 16px; }
+              .company-info p { font-size: 10px; }
+              .invoice-title-section { text-align: right; }
+              .invoice-title { font-size: 12px; }
+              .client-info p { font-size: 11px; }
+              th { padding: 8px 4px; font-size: 10px; }
+              td { padding: 8px 4px; font-size: 10px; }
+              .empty-row { height: 32px; }
+              .total-section { font-size: 11px; }
+              .total-amount { padding: 10px 8px; width: 30%; }
+              .total-label { padding: 10px 8px; }
+              .signature { margin-top: 32px; }
+              .signature-line div { width: 100px; }
+              .signature-line p { font-size: 10px; }
+              table { margin: 16px 0; }
+            }
+            
+            /* Added extra small mobile styles for very small screens */
+            @media screen and (max-width: 400px) {
+              .invoice { padding: 12px; }
+              .company-info h2 { font-size: 14px; }
+              .company-info p { font-size: 9px; }
+              th { padding: 6px 3px; font-size: 9px; }
+              td { padding: 6px 3px; font-size: 9px; }
+              .total-section { font-size: 10px; }
+              .total-amount { padding: 8px 6px; }
+              .total-label { padding: 8px 6px; }
+            }
+            
             @media print {
               body { background: white; padding: 0; margin: 0; }
               .invoice { padding: 0; }
@@ -140,10 +178,28 @@ export default function Home() {
               </tbody>
             </table>
 
-            <div class="total-section">
-              <div class="total-amount">${totalAmount.toFixed(2)}</div>
-              <div class="total-label">المجموع</div>
-            </div>
+            ${
+              `<div class="total-section">
+              <div class="total-amount">${subtotal.toFixed(2)}</div>
+              <div class="total-label">المجموع الفرعي</div>
+            </div>`
+            }
+
+            ${
+              discountAmount > 0
+                ? `<div class="total-section">
+              <div class="total-amount" style="color: #dc2626;">-${discountAmount.toFixed(2)}</div>
+              <div class="total-label">الخصم</div>
+            </div>`
+                : ""
+            }
+
+            ${
+              `<div class="total-section" style="background: #f9fafb;">
+              <div class="total-amount" style="font-size: 14px; font-weight: bold; color: #1e3a8a;">${totalAmount.toFixed(2)}</div>
+              <div class="total-label" style="font-size: 14px; font-weight: bold;">المجموع الكلي</div>
+            </div>`
+            }
 
             <div class="signature">
               <div class="signature-line">
@@ -229,7 +285,7 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="form" className="space-y-4 sm:space-y-6">
-            <InvoiceForm data={invoiceData as any} onChange={setInvoiceData} />
+            <InvoiceForm data={invoiceData} onChange={setInvoiceData} />
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-4 sm:space-y-6">
