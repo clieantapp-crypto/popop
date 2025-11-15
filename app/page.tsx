@@ -41,7 +41,7 @@ const initialInvoiceData: InvoiceData = {
 }
 
 export default function Home() {
-  const [invoiceData, setInvoiceData] = useState<InvoiceData>(initialInvoiceData)
+  const [invoiceData, setInvoiceData] = useState<InvoiceData | any>(initialInvoiceData)
 
   const handleGeneratePDF = () => {
     const element = document.getElementById("invoice-preview")
@@ -50,7 +50,7 @@ export default function Home() {
     const printWindow = window.open("", "_blank")
     if (!printWindow) return
 
-    const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    const subtotal = invoiceData.items.reduce((sum: number, item: { quantity: number; price: number }) => sum + item.quantity * item.price, 0)
     const discountAmount = invoiceData.discount || 0
     const totalAmount = subtotal - discountAmount
 
@@ -162,7 +162,7 @@ export default function Home() {
               <tbody>
                 ${invoiceData.items
                   .map(
-                    (item) => `
+                    (item: { quantity: number; price: number; description: any }) => `
                   <tr>
                     <td style="text-align: center; font-weight: bold;">${(item.quantity * item.price).toFixed(2)}</td>
                     <td>${item.price.toFixed(2)}</td>
@@ -285,7 +285,7 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="form" className="space-y-4 sm:space-y-6">
-            <InvoiceForm data={invoiceData} onChange={setInvoiceData} />
+            <InvoiceForm data={invoiceData as any } onChange={setInvoiceData} />
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-4 sm:space-y-6">
