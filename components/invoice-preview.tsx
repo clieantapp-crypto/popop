@@ -48,7 +48,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               {/* Company Info */}
               <div className="flex-1 w-full">
                 <h1 className="text-xl sm:text-2xl font-bold text-blue-800 mb-1">
-                  <img src="normar.png" alt="logo" width={100} />
+                  <img src="/normar.png" alt="logo" width={100} />
                   مختبر نورمار</h1>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium">NORMAR DIGITAL DENTAL INDUSTRY LAB</p>
                 <p className="text-xs text-slate-500 mt-1 sm:mt-2 line-clamp-2 sm:line-clamp-none">
