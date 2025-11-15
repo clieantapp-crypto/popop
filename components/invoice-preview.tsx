@@ -2,6 +2,13 @@
 
 import { Card } from "@/components/ui/card"
 
+interface Discount {
+  id: string
+  amount: number
+  date: string
+  description?: string
+}
+
 interface InvoiceData {
   invoiceNumber: string
   date: string
@@ -16,7 +23,7 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
-  discount?: number
+  discounts?: Discount[] // تغيير من دفعة  واحد إلى عدة دفعات  مع التاريخ
   notes: string
   paymentTerms: string
 }
@@ -27,8 +34,9 @@ interface InvoicePreviewProps {
 
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  const discountAmount = data.discount || 0
-  const finalTotal = subtotal - discountAmount
+  
+  const totalDiscounts = (data.discounts || []).reduce((sum, discount) => sum + discount.amount, 0)
+  const finalTotal = subtotal - totalDiscounts
 
   return (
     <div id="invoice-preview" className="w-full max-w-4xl mx-auto">
@@ -137,15 +145,17 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">المجموع الفرعي</div>
             </div>
 
-            {/* Discount Row */}
-            {discountAmount > 0 && (
-              <div className="flex text-xs sm:text-sm md:text-base border-b-2 border-blue-200">
+            {(data.discounts || []).length > 0 && data.discounts?.map((discount) => (
+              <div key={discount.id} className="flex text-xs sm:text-sm md:text-base border-b-2 border-blue-200">
                 <div className="w-1/4 p-2 sm:p-3 md:p-4 text-center font-semibold text-red-600 border-r-2 border-blue-200 whitespace-nowrap">
-                  -{discountAmount.toFixed(2)}
+                  -{discount.amount.toFixed(2)}
                 </div>
-                <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">الخصم</div>
+                <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">
+                  <div className="text-slate-800">دفعة  {discount.description ? `(${discount.description})` : ''}</div>
+                  <div className="text-xs text-slate-500">التاريخ: {discount.date}</div>
+                </div>
               </div>
-            )}
+            ))}
 
             {/* Final Total Row */}
             <div className="flex text-xs sm:text-sm md:text-base">

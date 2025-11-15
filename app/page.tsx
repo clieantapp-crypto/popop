@@ -189,7 +189,7 @@ export default function Home() {
               discountAmount > 0
                 ? `<div class="total-section">
               <div class="total-amount" style="color: #dc2626;">-${discountAmount.toFixed(2)}</div>
-              <div class="total-label">الخصم</div>
+              <div class="total-label">الدفعة </div>
             </div>`
                 : ""
             }
