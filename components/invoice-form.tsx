@@ -6,13 +6,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Plus, X } from 'lucide-react'
 
-interface Discount {
-  id: string
-  amount: number
-  date: string
-  description?: string
-}
-
 interface InvoiceData {
   invoiceNumber: string
   date: string
@@ -27,7 +20,12 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
-  discounts: Discount[]
+  discounts: Array<{
+    id: string
+    amount: number
+    date: string
+    description: string
+  }>
   notes: string
   paymentTerms: string
 }
@@ -62,32 +60,33 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
   }
 
   const handleAddDiscount = () => {
-    const newDiscount: Discount = {
+    const newDiscount = {
       id: Date.now().toString(),
       amount: 0,
       date: new Date().toISOString().split("T")[0],
       description: "",
     }
-    onChange({ ...data, discounts: [...(data.discounts || []), newDiscount] })
+    onChange({ ...data, discounts: [...data.discounts, newDiscount] })
   }
 
   const handleUpdateDiscount = (id: string, field: string, value: any) => {
-    const updatedDiscounts = (data.discounts || []).map((discount) =>
+    const updatedDiscounts = data.discounts.map((discount) =>
       discount.id === id ? { ...discount, [field]: value } : discount
     )
     onChange({ ...data, discounts: updatedDiscounts })
   }
 
   const handleRemoveDiscount = (id: string) => {
-    onChange({ ...data, discounts: (data.discounts || []).filter((d) => d.id !== id) })
+    onChange({ ...data, discounts: data.discounts.filter((discount) => discount.id !== id) })
   }
 
   const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  const totalDiscountAmount = (data.discounts || []).reduce((sum, discount) => sum + discount.amount, 0)
-  const total = subtotal - totalDiscountAmount
+  const totalDiscount = data.discounts.reduce((sum, discount) => sum + discount.amount, 0)
+  const total = subtotal - totalDiscount
 
   return (
     <div className="space-y-4 sm:space-y-6" dir="rtl">
+      {/* Invoice Info */}
       <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 sm:p-6">
           <CardTitle className="text-base sm:text-lg">معلومات الفاتورة</CardTitle>
@@ -127,6 +126,7 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
         </CardContent>
       </Card>
 
+      {/* Company and Client Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-3 sm:p-6">
@@ -183,6 +183,7 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
         </Card>
       </div>
 
+      {/* Items */}
       <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-3 sm:p-6 flex flex-row items-center justify-between gap-2">
           <CardTitle className="text-base sm:text-lg">البنود</CardTitle>
@@ -255,26 +256,26 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
 
       <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-orange-600 to-orange-700 text-white p-3 sm:p-6 flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg">الدفعات</CardTitle>
           <Button
             onClick={handleAddDiscount}
             size="sm"
             className="bg-white text-orange-700 hover:bg-slate-100 flex items-center gap-1 sm:gap-2 font-semibold rounded-lg text-xs sm:text-sm px-2 sm:px-3"
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">إضافة دفعة </span>
+            <span className="hidden sm:inline">إضافة دفعة</span>
             <span className="sm:hidden">إضافة</span>
           </Button>
-          <CardTitle className="text-base sm:text-lg"> الدفعات </CardTitle>
         </CardHeader>
         <CardContent className="pt-4 sm:pt-6 p-3 sm:p-6">
-          <div className="space-y-3 sm:space-y-4">
-            {(data.discounts || []).length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">لا توجد دفعات . اضغط "إضافة دفعة " لإضافة دفعة  جديد</p>
-            ) : (
-              (data.discounts || []).map((discount) => (
+          {data.discounts.length === 0 ? (
+            <p className="text-center text-slate-500 text-sm py-4">لا توجد خصومات. اضغط "إضافة دفعة" لإضافة دفعة جديد</p>
+          ) : (
+            <div className="space-y-3 sm:space-y-4">
+              {data.discounts.map((discount) => (
                 <div
                   key={discount.id}
-                  className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3 items-end p-3 sm:p-4 bg-gradient-to-br from-slate-50 to-orange-50 rounded-lg border border-slate-200 shadow-sm text-sm"
+                  className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3 items-end p-3 sm:p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-slate-200 shadow-sm text-sm"
                 >
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1 sm:mb-2">المبلغ</label>
@@ -284,7 +285,6 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
                       step="0.01"
                       value={discount.amount}
                       onChange={(e) => handleUpdateDiscount(discount.id, "amount", Number.parseFloat(e.target.value) || 0)}
-                      placeholder="0.00"
                       className="text-center border-slate-300 focus:border-orange-500 rounded-lg text-xs sm:text-sm"
                     />
                   </div>
@@ -300,9 +300,9 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
                   <div className="sm:col-span-1">
                     <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1 sm:mb-2">الوصف</label>
                     <Input
-                      value={discount.description || ""}
+                      value={discount.description}
                       onChange={(e) => handleUpdateDiscount(discount.id, "description", e.target.value)}
-                      placeholder="مثال: دفعة  1"
+                      placeholder="سبب الدفعة"
                       className="text-right border-slate-300 focus:border-orange-500 rounded-lg text-xs sm:text-sm"
                     />
                   </div>
@@ -315,9 +315,9 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
                     <X className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -332,10 +332,13 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
             <span className="font-bold text-slate-900">{subtotal.toFixed(2)}</span>
           </div>
           
-          <div className="flex justify-between items-center text-sm sm:text-base">
-            <span className="font-semibold text-slate-700">إجمالي  الدفعات :</span>
-            <span className="font-bold text-orange-600">{totalDiscountAmount.toFixed(2)}</span>
-          </div>
+          {totalDiscount > 0 && (
+            <div className="flex justify-between items-center text-sm sm:text-base">
+              <span className="font-semibold text-slate-700">إجمالي 
+الدفعات:</span>
+              <span className="font-bold text-red-600">-{totalDiscount.toFixed(2)}</span>
+            </div>
+          )}
           
           <div className="border-t-2 border-slate-300 pt-3 sm:pt-4 flex justify-between items-center">
             <span className="font-bold text-slate-900 text-base sm:text-lg">الإجمالي النهائي:</span>
@@ -346,6 +349,7 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
         </CardContent>
       </Card>
 
+      {/* Notes and Payment Terms */}
       <Card className="border border-slate-200 shadow-md rounded-lg overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-3 sm:p-6">
           <CardTitle className="text-base sm:text-lg">ملاحظات وشروط الدفع</CardTitle>

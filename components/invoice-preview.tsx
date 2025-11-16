@@ -2,13 +2,6 @@
 
 import { Card } from "@/components/ui/card"
 
-interface Discount {
-  id: string
-  amount: number
-  date: string
-  description?: string
-}
-
 interface InvoiceData {
   invoiceNumber: string
   date: string
@@ -23,7 +16,12 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
-  discounts?: Discount[] // تغيير من دفعة  واحد إلى عدة دفعات  مع التاريخ
+  discounts: Array<{
+    id: string
+    amount: number
+    date: string
+    description: string
+  }>
   notes: string
   paymentTerms: string
 }
@@ -34,9 +32,8 @@ interface InvoicePreviewProps {
 
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  
-  const totalDiscounts = (data.discounts || []).reduce((sum, discount) => sum + discount.amount, 0)
-  const finalTotal = subtotal - totalDiscounts
+  const totalDiscount = data.discounts.reduce((sum, discount) => sum + discount.amount, 0)
+  const finalTotal = subtotal - totalDiscount
 
   return (
     <div id="invoice-preview" className="w-full max-w-4xl mx-auto">
@@ -48,7 +45,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               {/* Company Info */}
               <div className="flex-1 w-full">
                 <h1 className="text-xl sm:text-2xl font-bold text-blue-800 mb-1">
-                  <img src="/normar.png" alt="logo" width={100} />
+                  <img src="normar.png" alt="logo" width={100} />
                   مختبر نورمار</h1>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium">NORMAR DIGITAL DENTAL INDUSTRY LAB</p>
                 <p className="text-xs text-slate-500 mt-1 sm:mt-2 line-clamp-2 sm:line-clamp-none">
@@ -145,14 +142,14 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">المجموع الفرعي</div>
             </div>
 
-            {(data.discounts || []).length > 0 && data.discounts?.map((discount) => (
+            {data.discounts.map((discount) => (
               <div key={discount.id} className="flex text-xs sm:text-sm md:text-base border-b-2 border-blue-200">
                 <div className="w-1/4 p-2 sm:p-3 md:p-4 text-center font-semibold text-red-600 border-r-2 border-blue-200 whitespace-nowrap">
                   -{discount.amount.toFixed(2)}
                 </div>
-                <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800">
-                  <div className="text-slate-800">دفعة  {discount.description ? `(${discount.description})` : ''}</div>
-                  <div className="text-xs text-slate-500">التاريخ: {discount.date}</div>
+                <div className="flex-1 p-2 sm:p-3 md:p-4 text-right font-semibold text-slate-800 flex justify-between items-center gap-2">
+                  <span>دفعة: {discount.description || "دفعة"}</span>
+                  <span className="text-xs text-slate-500">{discount.date}</span>
                 </div>
               </div>
             ))}

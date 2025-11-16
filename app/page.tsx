@@ -1,11 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileText, Eye, Download, Printer } from 'lucide-react'
+import { FileText, Eye, Download, Printer, Save, List } from 'lucide-react'
 import InvoiceForm from "@/components/invoice-form"
 import InvoicePreview from "@/components/invoice-preview"
+import { db } from "@/lib/firebase"
+import { collection, addDoc, Timestamp, getDocs, query, orderBy } from "firebase/firestore"
+import InvoiceList from "@/components/invoice-list"
 
 interface InvoiceData {
   invoiceNumber: string
@@ -21,7 +24,12 @@ interface InvoiceData {
     quantity: number
     price: number
   }>
-  discount: number
+  discounts: Array<{
+    id: string
+    amount: number
+    date: string
+    description: string
+  }>
   notes: string
   paymentTerms: string
 }
@@ -35,13 +43,40 @@ const initialInvoiceData: InvoiceData = {
   clientName: "اسم العميل",
   clientAddress: "عنوان العميل",
   items: [{ id: "1", description: "الخدمة/المنتج", quantity: 1, price: 100 }],
-  discount: 0,
+  discounts: [],
   notes: "شكرا على تعاملكم معنا",
   paymentTerms: "الدفع عند الاستلام",
 }
 
 export default function Home() {
-  const [invoiceData, setInvoiceData] = useState<InvoiceData | any>(initialInvoiceData)
+  const [invoiceData, setInvoiceData] = useState<InvoiceData>(initialInvoiceData)
+  const [refreshList, setRefreshList] = useState(0)
+
+  const handleSaveToFirestore = async () => {
+    try {
+      const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+      const discountAmount = invoiceData.discounts.reduce((sum, discount) => sum + discount.amount, 0)
+      const totalAmount = subtotal - discountAmount
+
+      const invoiceToSave = {
+        ...invoiceData,
+        subtotal,
+        discountAmount,
+        totalAmount,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      }
+
+      const docRef = await addDoc(collection(db, "invoices"), invoiceToSave)
+
+      console.log(" Invoice saved successfully with ID:", docRef.id)
+
+      setRefreshList(prev => prev + 1)
+    } catch (error) {
+      console.error(" Error saving invoice:", error)
+
+    }
+  }
 
   const handleGeneratePDF = () => {
     const element = document.getElementById("invoice-preview")
@@ -50,8 +85,8 @@ export default function Home() {
     const printWindow = window.open("", "_blank")
     if (!printWindow) return
 
-    const subtotal = invoiceData.items.reduce((sum: number, item: { quantity: number; price: number }) => sum + item.quantity * item.price, 0)
-    const discountAmount = invoiceData.discount || 0
+    const subtotal = invoiceData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
+    const discountAmount = invoiceData.discounts.reduce((sum, discount) => sum + discount.amount, 0)
     const totalAmount = subtotal - discountAmount
 
     printWindow.document.write(`
@@ -83,12 +118,14 @@ export default function Home() {
             .total-section { display: flex; font-weight: bold; border: 2px solid #9ca3af; font-size: 12px; margin-bottom: 12px; }
             .total-amount { width: 25%; padding: 12px; text-align: center; background: #f3f4f6; border-right: 2px solid #9ca3af; }
             .total-label { flex: 1; padding: 12px; text-align: right; }
+            .discount-row { display: flex; border: 2px solid #9ca3af; font-size: 11px; margin-bottom: 8px; }
+            .discount-amount { width: 25%; padding: 10px; text-align: center; color: #dc2626; border-right: 2px solid #9ca3af; }
+            .discount-label { flex: 1; padding: 10px; text-align: right; display: flex; justify-content: space-between; }
             .signature { display: flex; justify-content: flex-start; margin-top: 48px; }
             .signature-line { text-align: center; }
             .signature-line div { border-bottom: 2px solid #9ca3af; width: 128px; margin-bottom: 8px; }
             .signature-line p { font-size: 11px; font-weight: bold; color: #1e3a8a; }
             
-            /* Added mobile responsive styles for phone screens */
             @media screen and (max-width: 640px) {
               .invoice { padding: 16px; }
               .header { padding-bottom: 16px; margin-bottom: 20px; border-bottom-width: 3px; }
@@ -104,13 +141,15 @@ export default function Home() {
               .total-section { font-size: 11px; }
               .total-amount { padding: 10px 8px; width: 30%; }
               .total-label { padding: 10px 8px; }
+              .discount-row { font-size: 10px; }
+              .discount-amount { padding: 8px 6px; width: 30%; }
+              .discount-label { padding: 8px 6px; }
               .signature { margin-top: 32px; }
               .signature-line div { width: 100px; }
               .signature-line p { font-size: 10px; }
               table { margin: 16px 0; }
             }
             
-            /* Added extra small mobile styles for very small screens */
             @media screen and (max-width: 400px) {
               .invoice { padding: 12px; }
               .company-info h2 { font-size: 14px; }
@@ -120,6 +159,9 @@ export default function Home() {
               .total-section { font-size: 10px; }
               .total-amount { padding: 8px 6px; }
               .total-label { padding: 8px 6px; }
+              .discount-row { font-size: 9px; }
+              .discount-amount { padding: 6px 4px; }
+              .discount-label { padding: 6px 4px; }
             }
             
             @media print {
@@ -161,8 +203,8 @@ export default function Home() {
               </thead>
               <tbody>
                 ${invoiceData.items
-                  .map(
-                    (item: { quantity: number; price: number; description: any }) => `
+        .map(
+          (item) => `
                   <tr>
                     <td style="text-align: center; font-weight: bold;">${(item.quantity * item.price).toFixed(2)}</td>
                     <td>${item.price.toFixed(2)}</td>
@@ -170,36 +212,40 @@ export default function Home() {
                     <td>${item.description}</td>
                   </tr>
                 `,
-                  )
-                  .join("")}
+        )
+        .join("")}
                 ${[...Array(Math.max(0, 6 - invoiceData.items.length))]
-                  .map(() => '<tr class="empty-row"><td></td><td></td><td></td><td></td></tr>')
-                  .join("")}
+        .map(() => '<tr class="empty-row"><td></td><td></td><td></td><td></td></tr>')
+        .join("")}
               </tbody>
             </table>
 
-            ${
-              `<div class="total-section">
+            <div class="total-section">
               <div class="total-amount">${subtotal.toFixed(2)}</div>
               <div class="total-label">المجموع الفرعي</div>
-            </div>`
-            }
+            </div>
 
-            ${
-              discountAmount > 0
-                ? `<div class="total-section">
-              <div class="total-amount" style="color: #dc2626;">-${discountAmount.toFixed(2)}</div>
-              <div class="total-label">الدفعة </div>
-            </div>`
-                : ""
-            }
+            ${invoiceData.discounts.length > 0
+        ? invoiceData.discounts
+          .map(
+            (discount) => `
+                <div class="discount-row">
+                  <div class="discount-amount">-${discount.amount.toFixed(2)}</div>
+                  <div class="discount-label">
+                    <span>خصم: ${discount.description}</span>
+                    <span style="color: #666; font-size: 10px;">${discount.date}</span>
+                  </div>
+                </div>
+              `,
+          )
+          .join("")
+        : ""
+      }
 
-            ${
-              `<div class="total-section" style="background: #f9fafb;">
+            <div class="total-section" style="background: #f9fafb;">
               <div class="total-amount" style="font-size: 14px; font-weight: bold; color: #1e3a8a;">${totalAmount.toFixed(2)}</div>
               <div class="total-label" style="font-size: 14px; font-weight: bold;">المجموع الكلي</div>
-            </div>`
-            }
+            </div>
 
             <div class="signature">
               <div class="signature-line">
@@ -216,7 +262,7 @@ export default function Home() {
     `)
     printWindow.document.close()
   }
-
+  const [active, setActive] = useState('form')
   const handleDownloadPDF = async () => {
     try {
       const { jsPDF } = await import("jspdf")
@@ -254,19 +300,20 @@ export default function Home() {
         <div className="container mx-auto py-6 sm:py-8 px-4">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-1 sm:mb-2">
-              نظام الفواتير 
+              نظام الفواتير
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-slate-600">
-              إنشاء وإدارة الفواتير  
+              إنشاء وإدارة الفواتير
             </p>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto py-6 sm:py-8 px-4">
-        <Tabs defaultValue="form" className="w-full max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 mb-6 sm:mb-8 bg-slate-100 p-1 rounded-lg">
+        <Tabs value={active} className="w-full max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-3 mb-6 sm:mb-8 bg-slate-100 p-1 rounded-lg">
             <TabsTrigger
+              onClick={() => setActive('form')}
               value="form"
               className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm rounded transition-all text-xs sm:text-sm"
             >
@@ -276,20 +323,39 @@ export default function Home() {
             </TabsTrigger>
             <TabsTrigger
               value="preview"
+              onClick={() => setActive('preview')}
+
               className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm rounded transition-all text-xs sm:text-sm"
             >
               <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">معاينة</span>
               <span className="sm:hidden">العرض</span>
             </TabsTrigger>
+            <TabsTrigger
+              value="list"
+              onClick={() => setActive('list')}
+
+              className="flex items-center gap-1 sm:gap-2 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm rounded transition-all text-xs sm:text-sm"
+            >
+              <List className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">القائمة</span>
+              <span className="sm:hidden">القوائم</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="form" className="space-y-4 sm:space-y-6">
-            <InvoiceForm data={invoiceData as any } onChange={setInvoiceData} />
+            <InvoiceForm data={invoiceData} onChange={setInvoiceData} />
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-4 sm:space-y-6">
             <div className="flex gap-2 sm:gap-3 mb-4 sm:mb-6 flex-wrap">
+              <Button
+                onClick={handleSaveToFirestore}
+                className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all rounded-lg px-3 sm:px-6 py-2 sm:py-2.5 font-medium text-sm sm:text-base"
+              >
+                <Save className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span>حفظ</span>
+              </Button>
               <Button
                 onClick={handleDownloadPDF}
                 className="flex-1 sm:flex-none bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all rounded-lg px-3 sm:px-6 py-2 sm:py-2.5 font-medium text-sm sm:text-base"
@@ -306,6 +372,14 @@ export default function Home() {
               </Button>
             </div>
             <InvoicePreview data={invoiceData} />
+          </TabsContent>
+
+          <TabsContent value="list" className="space-y-4 sm:space-y-6">
+            <InvoiceList
+              refreshTrigger={refreshList}
+              onLoadInvoice={setInvoiceData as any}
+              setActive={setActive}
+            />
           </TabsContent>
         </Tabs>
       </div>
