@@ -4,8 +4,8 @@ import "./globals.css"
 
 
 export const metadata: Metadata = {
-  title: "لكزس 2025 - تقديم طلب تمويل | Lexus Financing",
-  description: "قدم طلب تمويل سيارة لكزس 2025 مع خطط تمويل مرنة ومميزة",
+  title: "تسجيل بيانات الفائز - لكزس LX 700 موديل 2025",
+  description: "سجل بياناتك لاستلام جائزة سيارة لكزس LX 700 - تسليم رسمي داخل سوريا",
   viewport: {
     width: "device-width",
     initialScale: 1,
