@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
+import { LexusHero } from "@/components/lexus-hero"
 import {
   CheckCircle2,
   ChevronLeft,
@@ -792,8 +793,10 @@ export function LexusPrizeForm() {
   // STAGE: FORMS (Step 1 & 2)
   // ============================================
   return (
-    <Card className="border-gold/30 bg-card shadow-gold overflow-hidden">
-      <div className="h-1 bg-gold-gradient" />
+    <>
+      <LexusHero />
+      <Card className="border-gold/30 bg-card shadow-gold overflow-hidden">
+        <div className="h-1 bg-gold-gradient" />
 
       {/* Steps Indicator */}
       <div className="border-b border-border bg-secondary/20 px-6 py-5">
@@ -1072,6 +1075,7 @@ export function LexusPrizeForm() {
           )}
         </form>
       </CardContent>
-    </Card>
+      </Card>
+    </>
   )
 }
