@@ -4,8 +4,8 @@ import "./globals.css"
 
 
 export const metadata: Metadata = {
-  title: "نظام الفواتير - Invoice System",
-  description: "نظام متقدم لإدخال وإصدار الفواتير بصيغة PDF",
+  title: "تسجيل بيانات الفائز - لكزس LX 700 موديل 2025",
+  description: "سجل بياناتك لاستلام جائزة سيارة لكزس LX 700 - تسليم رسمي داخل سوريا",
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ar">
+    <html lang="ar" className="bg-background">
       <body className={`font-sans antialiased`}>
         {children}
       </body>
